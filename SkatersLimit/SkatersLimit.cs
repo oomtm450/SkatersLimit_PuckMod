@@ -92,6 +92,8 @@ namespace oomtm450PuckMod_SkatersLimit {
                         return true;
                 }
 
+                if (teamBalancing)
+                    Log("Team balancing is on.");
                 Log($"Current team : {team} with {numberOfSkaters} skaters.");
                 Log($"Current number of skaters on red team : {numberOfRedSkaters}.");
                 Log($"Current number of skaters on blue team : {numberOfBlueSkaters}.");
