@@ -117,7 +117,7 @@ namespace oomtm450PuckMod_SkatersLimit {
             Log("Event_Client_OnClientStarted");
 
             try {
-                NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.SERVER_ID, ReceiveData);
+                NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.FROM_SERVER, ReceiveData);
             }
             catch (Exception ex) {
                 LogError($"Error in Event_Client_OnClientStarted. {ex}");
@@ -144,8 +144,8 @@ namespace oomtm450PuckMod_SkatersLimit {
             try {
                 Player player = (Player)message["player"];
 
-                NetworkCommunication.SendData(nameof(MOD_VERSION), MOD_VERSION, player.OwnerClientId, Constants.SERVER_ID);
-                NetworkCommunication.SendData("config", _serverConfig.ToString(), player.OwnerClientId, Constants.SERVER_ID);
+                NetworkCommunication.SendData(nameof(MOD_VERSION), MOD_VERSION, player.OwnerClientId, Constants.FROM_SERVER);
+                NetworkCommunication.SendData("config", _serverConfig.ToString(), player.OwnerClientId, Constants.FROM_SERVER);
             }
             catch (Exception ex) {
                 LogError($"Error in Event_OnPlayerSpawned. {ex}");
@@ -154,38 +154,31 @@ namespace oomtm450PuckMod_SkatersLimit {
 
         public static void ReceiveData(ulong clientId, FastBufferReader reader) {
             Log("ReceiveData");
-
+            
             try {
                 (string dataName, string dataStr) = NetworkCommunication.GetData(clientId, reader);
 
                 switch (dataName) {
                     case nameof(MOD_VERSION):
                         _serverVersion = dataStr;
-                        if (MOD_VERSION != _serverVersion) // TODO : Move the kick later so that it doesn't bug anything. Maybe even add a chat message and a 3-5 sec wait.
-                            NetworkCommunication.SendData("kick", "1", clientId, Constants.CLIENT_ID);
+                        if (MOD_VERSION != _serverVersion) // TODO : Move the kick later so that it doesn't break anything. Maybe even add a chat message and a 3-5 sec wait.
+                            NetworkCommunication.SendData("kick", "1", clientId, Constants.FROM_SERVER);
                         break;
 
                     case "config":
                         _serverConfig = ServerConfig.SetConfig(dataStr);
                         break;
+
+                    case "kick":
+                        if (dataStr == "1") {
+                            Log($"Kicking client {clientId}.");
+                            NetworkManager.Singleton.DisconnectClient(clientId, "Mod is out of date, please restart your game.");
+                        }
+                        break;
                 }
             }
             catch (Exception ex) {
                 LogError($"Error in ReceiveData: {ex}");
-            }
-        }
-
-        public static void KickClient(ulong clientId, FastBufferReader reader) {
-            Log("KickClient");
-
-            try {
-                if (NetworkCommunication.GetData(clientId, reader).DataStr == "1") {
-                    Log($"Kicking client {clientId}.");
-                    NetworkManager.Singleton.DisconnectClient(clientId, "Mod is out of date, please restart your game.");
-                }  
-            }
-            catch (Exception ex) {
-                LogError($"Error in KickClient: {ex}");
             }
         }
 
@@ -204,7 +197,7 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 if (IsDedicatedServer()) {
                     Log("Setting server sided config.");
-                    NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.CLIENT_ID, KickClient);
+                    NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.FROM_CLIENT, ReceiveData);
 
                     _serverConfig = ServerConfig.ReadConfig();
                 }
