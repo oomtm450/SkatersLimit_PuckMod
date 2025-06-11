@@ -79,7 +79,7 @@ namespace oomtm450PuckMod_SkatersLimit {
 
             File.WriteAllText(configPath, config.ToString());
 
-            SkatersLimit.Log($"Writing server config : {config.ToString()}");
+            SkatersLimit.Log($"Writing server config : {config}");
 
             config.SentByServer = true;
             return config;

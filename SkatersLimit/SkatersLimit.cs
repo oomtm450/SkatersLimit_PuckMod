@@ -9,13 +9,13 @@ namespace oomtm450PuckMod_SkatersLimit {
     public class SkatersLimit : IPuckMod {
         #region Constants
         private const string GOALIE_POSITION = "G";
-        private const string MOD_VERSION = "1.0.0DEV2";
+        private const string MOD_VERSION = "1.0.0";
         #endregion
 
         #region Fields
         private static readonly Harmony _harmony = new Harmony(Constants.MOD_NAME);
         private static ServerConfig _serverConfig = new ServerConfig();
-        private static ClientConfig _clientConfig = new ClientConfig(); // TODO : Read local client config.
+        private static ClientConfig _clientConfig = new ClientConfig();
         private static string _serverVersion = "";
         #endregion
 
@@ -189,20 +189,24 @@ namespace oomtm450PuckMod_SkatersLimit {
         public bool OnEnable()  {
             try
             {
-                Log($"Enabling...");
+                Log($"Enabling...", true);
 
                 _harmony.PatchAll();
 
-                Log($"Enabled.");
+                Log($"Enabled.", true);
 
                 if (IsDedicatedServer()) {
-                    Log("Setting server sided config.");
+                    Log("Setting server sided config.", true);
                     NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.FROM_CLIENT, ReceiveData);
 
                     _serverConfig = ServerConfig.ReadConfig();
                 }
+                else {
+                    Log("Setting client sided config.", true);
+                    _clientConfig = ClientConfig.ReadConfig();
+                }
 
-                Log("Subscribing to events.");
+                Log("Subscribing to events.", true);
                 EventManager.Instance.AddEventListener("Event_Client_OnClientStarted", Event_Client_OnClientStarted);
                 EventManager.Instance.AddEventListener("Event_Client_OnClientStopped", Event_Client_OnClientStopped);
                 EventManager.Instance.AddEventListener("Event_OnPlayerSpawned", Event_OnPlayerSpawned);
@@ -221,17 +225,17 @@ namespace oomtm450PuckMod_SkatersLimit {
         /// <returns>Bool, true if the mod successfully disabled.</returns>
         public bool OnDisable() {
             try {
-                Log("Unsubscribing from events.");
+                Log("Unsubscribing from events.", true);
 
                 EventManager.Instance.RemoveEventListener("Event_Client_OnClientStarted", Event_Client_OnClientStarted);
                 EventManager.Instance.RemoveEventListener("Event_Client_OnClientStopped", Event_Client_OnClientStopped);
                 EventManager.Instance.RemoveEventListener("Event_OnPlayerSpawned", Event_OnPlayerSpawned);
 
-                Log($"Disabling...");
+                Log($"Disabling...", true);
 
                 _harmony.UnpatchSelf();
 
-                Log($"Disabled.");
+                Log($"Disabled.", true);
                 return true;
             }
             catch (Exception ex) {
@@ -244,8 +248,9 @@ namespace oomtm450PuckMod_SkatersLimit {
         /// Function that logs information to the debug console.
         /// </summary>
         /// <param name="msg">String, message to log.</param>
-        internal static void Log(string msg) {
-            if ((IsDedicatedServer() && _serverConfig.LogInfo) || (!IsDedicatedServer() && _clientConfig.LogInfo))
+        /// <param name="bypassConfig">Bool, true to bypass the logs config. False by default.</param>
+        internal static void Log(string msg, bool bypassConfig = false) {
+            if (bypassConfig || (IsDedicatedServer() && _serverConfig.LogInfo) || (!IsDedicatedServer() && _clientConfig.LogInfo))
                 Debug.Log($"[{Constants.MOD_NAME}] {msg}");
         }
 

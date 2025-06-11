@@ -38,14 +38,14 @@ namespace oomtm450PuckMod_SkatersLimit {
 
             string rootPath = Path.GetFullPath(".");
             string configPath = Path.Combine(rootPath, Constants.MOD_NAME + "_clientconfig.json");
-            if (!File.Exists(configPath)) {
+            if (File.Exists(configPath)) {
                 string configFileContent = File.ReadAllText(configPath);
                 config = SetConfig(configFileContent);
             }
 
             File.WriteAllText(configPath, config.ToString());
 
-            SkatersLimit.Log($"Writing client config : {config.ToString()}");
+            SkatersLimit.Log($"Writing client config : {config}");
 
             return config;
         }
