@@ -38,8 +38,10 @@ namespace oomtm450PuckMod_SkatersLimit {
                 if (_serverConfig.AdminBypass) {
                     Player currentPlayer = NetworkBehaviourSingleton<PlayerManager>.Instance.GetPlayerByClientId(currentPPosition.OwnerClientId);
                     foreach (string adminSteamId in NetworkBehaviourSingleton<ServerManager>.Instance.AdminSteamIds) {
-                        if (adminSteamId == currentPlayer.SteamId.Value.ToString())
+                        if (adminSteamId == currentPlayer.SteamId.Value.ToString()) {
+                            Log($"{adminSteamId} is an admin. Bypassing team limits.");
                             return true;
+                        }
                     }
                 }
 
