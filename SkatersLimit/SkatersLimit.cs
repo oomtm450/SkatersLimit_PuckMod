@@ -9,7 +9,7 @@ namespace oomtm450PuckMod_SkatersLimit {
     public class SkatersLimit : IPuckMod {
         #region Constants
         private const string GOALIE_POSITION = "G";
-        private const string MOD_VERSION = "1.0.0DEV";
+        private const string MOD_VERSION = "1.0.0DEV2";
         #endregion
 
         #region Fields
