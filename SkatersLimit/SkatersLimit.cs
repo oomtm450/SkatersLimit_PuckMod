@@ -20,8 +20,16 @@ namespace oomtm450PuckMod_SkatersLimit {
         private static string _serverVersion = "";
         #endregion
 
+        /// <summary>
+        /// Class that patches the Event_Client_OnPositionSelectClickPosition event from PlayerPositionManagerController.
+        /// </summary>
         [HarmonyPatch(typeof(PlayerPositionManagerController), "Event_Client_OnPositionSelectClickPosition")]
         public class PlayerPositionManagerControllerPatch {
+            /// <summary>
+            /// Prefix patch function to check if the player is authorized to claim the selected position.
+            /// </summary>
+            /// <param name="message">Dictionary of string and object, content of the event.</param>
+            /// <returns>Bool, true if the user is authorized.</returns>
             [HarmonyPrefix]
             public static bool Prefix(Dictionary<string, object> message) {
                 // If this is the server or the config was not sent by server (not installed on the server ?), do not use the patch.
