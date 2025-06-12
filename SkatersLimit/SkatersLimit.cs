@@ -9,7 +9,7 @@ namespace oomtm450PuckMod_SkatersLimit {
     public class SkatersLimit : IPuckMod {
         #region Constants
         private const string GOALIE_POSITION = "G";
-        private const string MOD_VERSION = "1.0.0";
+        private const string MOD_VERSION = "1.0.1";
         #endregion
 
         #region Fields
@@ -36,8 +36,8 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 // Admin bypass.
                 if (_serverConfig.AdminBypass) {
-                    Player currentPlayer = NetworkBehaviourSingleton<PlayerManager>.Instance.GetPlayerByClientId(currentPPosition.OwnerClientId);
-                    foreach (string adminSteamId in NetworkBehaviourSingleton<ServerManager>.Instance.AdminSteamIds) {
+                    Player currentPlayer = PlayerManager.Instance.GetLocalPlayer();
+                    foreach (string adminSteamId in _serverConfig.AdminSteamIds) {
                         if (adminSteamId == currentPlayer.SteamId.Value.ToString()) {
                             Log($"{adminSteamId} is an admin. Bypassing team limits.");
                             return true;
@@ -94,6 +94,7 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 if (teamBalancing)
                     Log("Team balancing is on.");
+
                 Log($"Current team : {team} with {numberOfSkaters} skaters.");
                 Log($"Current number of skaters on red team : {numberOfRedSkaters}.");
                 Log($"Current number of skaters on blue team : {numberOfBlueSkaters}.");
@@ -199,7 +200,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                     Log("Setting server sided config.", true);
                     NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.FROM_CLIENT, ReceiveData);
 
-                    _serverConfig = ServerConfig.ReadConfig();
+                    _serverConfig = ServerConfig.ReadConfig(ServerManager.Instance.AdminSteamIds);
                 }
                 else {
                     Log("Setting client sided config.", true);
