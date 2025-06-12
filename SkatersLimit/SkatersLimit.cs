@@ -69,6 +69,7 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 string team;
                 int numberOfSkaters;
+                bool goalieAvailable = true;
                 switch (currentPPosition.Team) {
                     case PlayerTeam.Blue:
                         team = "blue";
@@ -79,6 +80,9 @@ namespace oomtm450PuckMod_SkatersLimit {
                             if (newMaxNumberOfSkaters < maxNumberOfSkaters)
                                 maxNumberOfSkaters = newMaxNumberOfSkaters;
                         }
+
+                        if (hasBlueGoalie)
+                            goalieAvailable = false;
 
                         break;
 
@@ -91,6 +95,9 @@ namespace oomtm450PuckMod_SkatersLimit {
                             if (newMaxNumberOfSkaters < maxNumberOfSkaters)
                                 maxNumberOfSkaters = newMaxNumberOfSkaters;
                         }
+
+                        if (hasRedGoalie)
+                            goalieAvailable = false;
 
                         break;
 
@@ -107,10 +114,19 @@ namespace oomtm450PuckMod_SkatersLimit {
                 Log($"Current number of skaters on blue team : {numberOfBlueSkaters}.");
 
                 if (numberOfSkaters >= maxNumberOfSkaters) {
-                    if (teamBalancing)
-                        UIChat.Instance.AddChatMessage($"Teams are unbalanced ({maxNumberOfSkaters}). Go goalie or switch team.");
-                    else
-                        UIChat.Instance.AddChatMessage($"Team is full ({maxNumberOfSkaters}). Only {GOALIE_POSITION} position is available.");
+                    if (teamBalancing) {
+                        if (goalieAvailable)
+                            UIChat.Instance.AddChatMessage($"Teams are unbalanced ({maxNumberOfSkaters}). Go goalie or switch teams.");
+                        else
+                            UIChat.Instance.AddChatMessage($"Teams are unbalanced ({maxNumberOfSkaters}). Switch teams.");
+                    }
+                    else {
+                        if (goalieAvailable)
+                            UIChat.Instance.AddChatMessage($"Team is full ({maxNumberOfSkaters}). Only {GOALIE_POSITION} position is available.");
+                        else
+                            UIChat.Instance.AddChatMessage($"Team is full ({maxNumberOfSkaters}). Switch teams.");
+                    }
+                        
                     return false;
                 }
 
