@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 namespace oomtm450PuckMod_SkatersLimit {
     public class SkatersLimit : IPuckMod {
         #region Constants
         private const string GOALIE_POSITION = "G";
-        private const string MOD_VERSION = "1.0.2";
+        private const string MOD_VERSION = "1.0.3";
         #endregion
 
         #region Fields
@@ -48,18 +49,18 @@ namespace oomtm450PuckMod_SkatersLimit {
                 bool hasBlueGoalie = false;
                 int numberOfBlueSkaters = 0;
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.BluePositions) {
-                    if (pPosition.Role == PlayerRole.Attacker && pPosition.IsClaimed)
+                    if (IsAttacker(pPosition))
                         numberOfBlueSkaters++;
-                    if (pPosition.Role == PlayerRole.Goalie && pPosition.IsClaimed)
+                    if (IsGoalie(pPosition))
                         hasBlueGoalie = true;
                 }
 
                 bool hasRedGoalie = false;
                 int numberOfRedSkaters = 0;
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.RedPositions) {
-                    if (pPosition.Role == PlayerRole.Attacker && pPosition.IsClaimed)
+                    if (IsAttacker(pPosition))
                         numberOfRedSkaters++;
-                    if (pPosition.Role == PlayerRole.Goalie && pPosition.IsClaimed)
+                    if (IsGoalie(pPosition))
                         hasRedGoalie = true;
                 }
 
@@ -115,6 +116,41 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Function that returns true if the PlayerPosition has the given role, and if it is claimed depending on hasToBeClaimed.
+        /// </summary>
+        /// <param name="pPosition">PlayerPosition, object to check.</param>
+        /// <param name="role">PlayerRole, role to check for in the PlayerPosition.</param>
+        /// <param name="hasToBeClaimed">Bool, true if the PlayerPosition has to be claimed.</param>
+        /// <returns>Bool, true if the PlayerPosition has the given PlayerRole, and is claimed or not depending of hasToBeClaimed.</returns>
+        private static bool IsRole(PlayerPosition pPosition, PlayerRole role, bool hasToBeClaimed = true) {
+            bool output = pPosition.Role == role;
+            if (hasToBeClaimed)
+                return output && pPosition.IsClaimed;
+
+            return output;
+        }
+
+        /// <summary>
+        /// Function that returns true if the PlayerPosition is an attacker (skater), and if it is claimed depending on hasToBeClaimed.
+        /// </summary>
+        /// <param name="pPosition">PlayerPosition, object to check.</param>
+        /// <param name="hasToBeClaimed">Bool, true if the PlayerPosition has to be claimed.</param>
+        /// <returns>Bool, true if the PlayerPosition is an attacker (skater), and is claimed or not depending of hasToBeClaimed.</returns>
+        private static bool IsAttacker(PlayerPosition pPosition, bool hasToBeClaimed = true) {
+            return IsRole(pPosition, PlayerRole.Attacker, hasToBeClaimed);
+        }
+
+        /// <summary>
+        /// Function that returns true if the PlayerPosition is a goalie, and if it is claimed depending on hasToBeClaimed.
+        /// </summary>
+        /// <param name="pPosition">PlayerPosition, object to check.</param>
+        /// <param name="hasToBeClaimed">Bool, true if the PlayerPosition has to be claimed.</param>
+        /// <returns>Bool, true if the PlayerPosition is a goalie, and is claimed or not depending of hasToBeClaimed.</returns>
+        private static bool IsGoalie(PlayerPosition pPosition, bool hasToBeClaimed = true) {
+            return IsRole(pPosition, PlayerRole.Goalie, hasToBeClaimed);
         }
 
         public static void Event_Client_OnClientStarted(Dictionary<string, object> message) {
