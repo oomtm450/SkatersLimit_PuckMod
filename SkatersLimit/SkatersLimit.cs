@@ -9,7 +9,7 @@ namespace oomtm450PuckMod_SkatersLimit {
     public class SkatersLimit : IPuckMod {
         #region Constants
         private const string GOALIE_POSITION = "G";
-        private const string MOD_VERSION = "1.0.1";
+        private const string MOD_VERSION = "1.0.2";
         #endregion
 
         #region Fields
@@ -73,8 +73,11 @@ namespace oomtm450PuckMod_SkatersLimit {
                         team = "blue";
                         numberOfSkaters = numberOfBlueSkaters;
 
-                        if (teamBalancing)
-                            maxNumberOfSkaters = numberOfRedSkaters + _serverConfig.TeamBalanceOffset + 1;
+                        if (teamBalancing) {
+                            int newMaxNumberOfSkaters = numberOfRedSkaters + _serverConfig.TeamBalanceOffset + 1;
+                            if (newMaxNumberOfSkaters < maxNumberOfSkaters)
+                                maxNumberOfSkaters = newMaxNumberOfSkaters;
+                        }
 
                         break;
 
@@ -82,8 +85,11 @@ namespace oomtm450PuckMod_SkatersLimit {
                         team = "red";
                         numberOfSkaters = numberOfRedSkaters;
 
-                        if (teamBalancing)
-                            maxNumberOfSkaters = numberOfBlueSkaters + _serverConfig.TeamBalanceOffset + 1;
+                        if (teamBalancing) {
+                            int newMaxNumberOfSkaters = numberOfBlueSkaters + _serverConfig.TeamBalanceOffset + 1;
+                            if (newMaxNumberOfSkaters < maxNumberOfSkaters)
+                                maxNumberOfSkaters = newMaxNumberOfSkaters;
+                        }
 
                         break;
 
