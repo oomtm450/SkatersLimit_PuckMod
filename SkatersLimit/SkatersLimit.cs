@@ -58,6 +58,7 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 PlayerPosition currentPPosition = (PlayerPosition)message["playerPosition"];
 
+                // Goalie bypass.
                 if (currentPPosition.Name == GOALIE_POSITION)
                     return true;
 
@@ -72,6 +73,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                     }
                 }
 
+                // Get blue team infos.
                 bool hasBlueGoalie = false;
                 int numberOfBlueSkaters = 0;
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.BluePositions) {
@@ -81,6 +83,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                         hasBlueGoalie = true;
                 }
 
+                // Get red team infos.
                 bool hasRedGoalie = false;
                 int numberOfRedSkaters = 0;
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.RedPositions) {
@@ -93,12 +96,11 @@ namespace oomtm450PuckMod_SkatersLimit {
                 int maxNumberOfSkaters = _serverConfig.MaxNumberOfSkaters;
                 bool teamBalancing = TeamBalancing(hasBlueGoalie, hasRedGoalie);
 
-                string team;
+                // Get certain informations depending the player's team.
                 int numberOfSkaters;
                 bool goalieAvailable = true;
                 switch (currentPPosition.Team) {
                     case PlayerTeam.Blue:
-                        team = "blue";
                         numberOfSkaters = numberOfBlueSkaters;
 
                         if (teamBalancing) {
@@ -113,7 +115,6 @@ namespace oomtm450PuckMod_SkatersLimit {
                         break;
 
                     case PlayerTeam.Red:
-                        team = "red";
                         numberOfSkaters = numberOfRedSkaters;
 
                         if (teamBalancing) {
@@ -132,12 +133,14 @@ namespace oomtm450PuckMod_SkatersLimit {
                         return true;
                 }
 
+                /* Logging for client debugging */
                 if (teamBalancing)
                     Log("Team balancing is on.");
 
-                Log($"Current team : {team} with {numberOfSkaters} skaters.");
+                Log($"Current team : {nameof(currentPPosition.Team)} with {numberOfSkaters} skaters.");
                 Log($"Current number of skaters on red team : {numberOfRedSkaters}.");
                 Log($"Current number of skaters on blue team : {numberOfBlueSkaters}.");
+                /*                              */
 
                 if (numberOfSkaters >= maxNumberOfSkaters) {
                     if (teamBalancing) {
