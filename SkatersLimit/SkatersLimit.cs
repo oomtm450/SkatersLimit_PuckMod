@@ -4,20 +4,38 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
 
 namespace oomtm450PuckMod_SkatersLimit {
+    /// <summary>
+    /// Class containing the main code for the SkatersLimit patch.
+    /// </summary>
     public class SkatersLimit : IPuckMod {
         #region Constants
+        /// <summary>
+        /// Const string, position name for the goalie.
+        /// </summary>
         private const string GOALIE_POSITION = "G";
+        /// <summary>
+        /// Const string, version of the mod.
+        /// </summary>
         private const string MOD_VERSION = "1.0.3";
         #endregion
 
         #region Fields
+        /// <summary>
+        /// Harmony, harmony instance to patch the Puck's code.
+        /// </summary>
         private static readonly Harmony _harmony = new Harmony(Constants.MOD_NAME);
+
+        /// <summary>
+        /// ServerConfig, config set and sent by the server.
+        /// </summary>
         private static ServerConfig _serverConfig = new ServerConfig();
+
+        /// <summary>
+        /// ServerConfig, config set by the client.
+        /// </summary>
         private static ClientConfig _clientConfig = new ClientConfig();
-        private static string _serverVersion = "";
         #endregion
 
         /// <summary>
@@ -32,7 +50,7 @@ namespace oomtm450PuckMod_SkatersLimit {
             /// <returns>Bool, true if the user is authorized.</returns>
             [HarmonyPrefix]
             public static bool Prefix(Dictionary<string, object> message) {
-                // If this is the server or the config was not sent by server (not installed on the server ?), do not use the patch.
+                // If this is the server or the config was not sent by server (mod not installed on the server ?), do not use the patch.
                 if (IsDedicatedServer() || !_serverConfig.SentByServer)
                     return true;
 
@@ -246,21 +264,24 @@ namespace oomtm450PuckMod_SkatersLimit {
                 (string dataName, string dataStr) = NetworkCommunication.GetData(clientId, reader);
 
                 switch (dataName) {
-                    case nameof(MOD_VERSION):
-                        _serverVersion = dataStr;
-                        if (MOD_VERSION != _serverVersion) // TODO : Move the kick later so that it doesn't break anything. Maybe even add a chat message and a 3-5 sec wait.
-                            NetworkCommunication.SendData("kick", "1", clientId, Constants.FROM_SERVER);
+                    case nameof(MOD_VERSION): // CLIENT-SIDE : Mod version check, kick if client and server versions are not the same.
+                        if (MOD_VERSION == dataStr) // TODO : Move the kick later so that it doesn't break anything. Maybe even add a chat message and a 3-5 sec wait.
+                            break;
+
+                        NetworkCommunication.SendData("kick", "1", clientId, Constants.FROM_SERVER);
                         break;
 
-                    case "config":
+                    case "config": // CLIENT-SIDE : Set the server config on the client to use later for the SkatersLimit logic, since the logic happens on the client.
                         _serverConfig = ServerConfig.SetConfig(dataStr);
                         break;
 
-                    case "kick":
-                        if (dataStr == "1") {
-                            Log($"Kicking client {clientId}.");
-                            NetworkManager.Singleton.DisconnectClient(clientId, "Mod is out of date, please restart your game.");
-                        }
+                    case "kick": // SERVER-SIDE : Kick the client that asked to be kicked.
+                        if (dataStr != "1")
+                            break;
+
+                        Log($"Kicking client {clientId}.");
+                        NetworkManager.Singleton.DisconnectClient(clientId,
+                            $"Mod is out of date. Please restart your game or unsubscribe from {Constants.WORKSHOP_MOD_NAME} in the workshop to update.");
                         break;
                 }
             }
