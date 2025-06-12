@@ -169,6 +169,11 @@ namespace oomtm450PuckMod_SkatersLimit {
             return IsRole(pPosition, PlayerRole.Goalie, hasToBeClaimed);
         }
 
+        /// <summary>
+        /// Method called when the client has started on the client-side.
+        /// Used to register to the server messaging (config sync and version check).
+        /// </summary>
+        /// <param name="message">Dictionary of string and object, content of the event.</param>
         public static void Event_Client_OnClientStarted(Dictionary<string, object> message) {
             if (NetworkManager.Singleton == null || IsDedicatedServer())
                 return;
@@ -179,10 +184,15 @@ namespace oomtm450PuckMod_SkatersLimit {
                 NetworkManager.Singleton.CustomMessagingManager.RegisterNamedMessageHandler(Constants.FROM_SERVER, ReceiveData);
             }
             catch (Exception ex) {
-                LogError($"Error in Event_Client_OnClientStarted. {ex}");
+                LogError($"Error in Event_Client_OnClientStarted.\n{ex}");
             }
         }
 
+        /// <summary>
+        /// Method called when the client has stopped on the client-side.
+        /// Used to reset the config so that it doesn't carry over between servers.
+        /// </summary>
+        /// <param name="message">Dictionary of string and object, content of the event.</param>
         public static void Event_Client_OnClientStopped(Dictionary<string, object> message) {
             Log("Event_Client_OnClientStopped");
 
@@ -190,10 +200,15 @@ namespace oomtm450PuckMod_SkatersLimit {
                 _serverConfig = new ServerConfig();
             }
             catch (Exception ex) {
-                LogError($"Error in Event_Client_OnClientStopped. {ex}");
+                LogError($"Error in Event_Client_OnClientStopped.\n{ex}");
             }
         }
 
+        /// <summary>
+        /// Method called when a client has "spawned" (joined a server) on the server-side.
+        /// Used to send data to the new client that has connected (config and mod version).
+        /// </summary>
+        /// <param name="message">Dictionary of string and object, content of the event.</param>
         public static void Event_OnPlayerSpawned(Dictionary<string, object> message) {
             if (!IsDedicatedServer())
                 return;
@@ -207,10 +222,15 @@ namespace oomtm450PuckMod_SkatersLimit {
                 NetworkCommunication.SendData("config", _serverConfig.ToString(), player.OwnerClientId, Constants.FROM_SERVER);
             }
             catch (Exception ex) {
-                LogError($"Error in Event_OnPlayerSpawned. {ex}");
+                LogError($"Error in Event_OnPlayerSpawned.\n{ex}");
             }
         }
 
+        /// <summary>
+        /// Method that manages received data from client-server communications.
+        /// </summary>
+        /// <param name="clientId">Ulong, Id of the client that sent the data. (0 if the server sent the data)</param>
+        /// <param name="reader">FastBufferReader, stream containing the received data.</param>
         public static void ReceiveData(ulong clientId, FastBufferReader reader) {
             Log("ReceiveData");
             
@@ -237,7 +257,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                 }
             }
             catch (Exception ex) {
-                LogError($"Error in ReceiveData: {ex}");
+                LogError($"Error in ReceiveData.\n{ex}");
             }
         }
 
@@ -273,7 +293,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                 return true;
             }
             catch (Exception ex) {
-                LogError($"Failed to enable: {ex}");
+                LogError($"Failed to enable.\n{ex}");
                 return false;
             }
         }
@@ -298,7 +318,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                 return true;
             }
             catch (Exception ex) {
-                LogError($"Failed to disable: {ex}");
+                LogError($"Failed to disable.\n{ex}");
                 return false;
             }
         }
