@@ -59,19 +59,12 @@ namespace oomtm450PuckMod_SkatersLimit {
                 PlayerPosition currentPPosition = (PlayerPosition)message["playerPosition"];
 
                 // Goalie bypass.
-                if (currentPPosition.Name == GOALIE_POSITION)
+                if (IsGoalie(currentPPosition, false))
                     return true;
 
                 // Admin bypass.
-                if (_serverConfig.AdminBypass) {
-                    Player currentPlayer = PlayerManager.Instance.GetLocalPlayer();
-                    foreach (string adminSteamId in _serverConfig.AdminSteamIds) {
-                        if (adminSteamId == currentPlayer.SteamId.Value.ToString()) {
-                            Log($"{adminSteamId} is an admin. Bypassing team limits.");
-                            return true;
-                        }
-                    }
-                }
+                if (_serverConfig.AdminBypass && IsAdmin())
+                    return true;
 
                 // Get blue team infos.
                 bool hasBlueGoalie = false;
@@ -161,6 +154,22 @@ namespace oomtm450PuckMod_SkatersLimit {
 
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Function that checks if the current client is an admin using the config.
+        /// </summary>
+        /// <returns>Bool, true if the client is an admin of the server.</returns>
+        private static bool IsAdmin() {
+            Player currentPlayer = PlayerManager.Instance.GetLocalPlayer();
+            foreach (string adminSteamId in _serverConfig.AdminSteamIds) {
+                if (adminSteamId == currentPlayer.SteamId.Value.ToString()) {
+                    Log($"{adminSteamId} is an admin.");
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
