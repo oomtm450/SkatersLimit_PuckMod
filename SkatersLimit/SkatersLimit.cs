@@ -72,7 +72,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.BluePositions) {
                     if (IsAttacker(pPosition))
                         numberOfBlueSkaters++;
-                    if (IsGoalie(pPosition))
+                    else if (IsGoalie(pPosition))
                         hasBlueGoalie = true;
                 }
 
@@ -82,7 +82,7 @@ namespace oomtm450PuckMod_SkatersLimit {
                 foreach (PlayerPosition pPosition in PlayerPositionManager.Instance.RedPositions) {
                     if (IsAttacker(pPosition))
                         numberOfRedSkaters++;
-                    if (IsGoalie(pPosition))
+                    else if (IsGoalie(pPosition))
                         hasRedGoalie = true;
                 }
 
