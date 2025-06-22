@@ -256,8 +256,8 @@ namespace oomtm450PuckMod_SkatersLimit {
             try {
                 Player player = (Player)message["player"];
 
-                NetworkCommunication.SendData(nameof(MOD_VERSION), MOD_VERSION, player.OwnerClientId, Constants.FROM_SERVER);
-                NetworkCommunication.SendData("config", _serverConfig.ToString(), player.OwnerClientId, Constants.FROM_SERVER);
+                NetworkCommunication.SendData(Constants.MOD_NAME + "_" + nameof(MOD_VERSION), MOD_VERSION, player.OwnerClientId, Constants.FROM_SERVER);
+                NetworkCommunication.SendData(ServerConfig.CONFIG_DATA_NAME, _serverConfig.ToString(), player.OwnerClientId, Constants.FROM_SERVER);
             }
             catch (Exception ex) {
                 LogError($"Error in Event_OnPlayerSpawned.\n{ex}");
@@ -276,19 +276,19 @@ namespace oomtm450PuckMod_SkatersLimit {
                 (string dataName, string dataStr) = NetworkCommunication.GetData(clientId, reader);
 
                 switch (dataName) {
-                    case nameof(MOD_VERSION): // CLIENT-SIDE : Mod version check, kick if client and server versions are not the same.
+                    case Constants.MOD_NAME + "_" + nameof(MOD_VERSION): // CLIENT-SIDE : Mod version check, kick if client and server versions are not the same.
                         if (MOD_VERSION == dataStr) // TODO : Move the kick later so that it doesn't break anything. Maybe even add a chat message and a 3-5 sec wait.
                             break;
 
-                        NetworkCommunication.SendData("kick", "1", clientId, Constants.FROM_SERVER);
+                        NetworkCommunication.SendData(Constants.MOD_NAME + "_" + "kick", "1", clientId, Constants.FROM_SERVER);
                         break;
 
-                    case "config": // CLIENT-SIDE : Set the server config on the client to use later for the SkatersLimit logic, since the logic happens on the client.
+                    case ServerConfig.CONFIG_DATA_NAME: // CLIENT-SIDE : Set the server config on the client to use later for the SkatersLimit logic, since the logic happens on the client.
                         if (!_serverConfig.SentByServer)
                             _serverConfig = ServerConfig.SetConfig(dataStr);
                         break;
 
-                    case "kick": // SERVER-SIDE : Kick the client that asked to be kicked.
+                    case Constants.MOD_NAME + "_" + "kick": // SERVER-SIDE : Kick the client that asked to be kicked.
                         if (dataStr != "1")
                             break;
 

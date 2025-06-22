@@ -6,6 +6,13 @@ namespace oomtm450PuckMod_SkatersLimit {
     /// Class containing the configuration from oomtm450_skaterslimit_serverconfig.json used for this mod.
     /// </summary>
     public class ServerConfig {
+        #region Constants
+        /// <summary>
+        /// Const string, name used when sending the config data to the client.
+        /// </summary>
+        public const string CONFIG_DATA_NAME = Constants.MOD_NAME + "_config";
+        #endregion
+
         #region Properties
         /// <summary>
         /// Int, number of skaters that are allowed on the ice at the same time per team.
