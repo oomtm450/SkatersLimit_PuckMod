@@ -284,7 +284,8 @@ namespace oomtm450PuckMod_SkatersLimit {
                         break;
 
                     case "config": // CLIENT-SIDE : Set the server config on the client to use later for the SkatersLimit logic, since the logic happens on the client.
-                        _serverConfig = ServerConfig.SetConfig(dataStr);
+                        if (!_serverConfig.SentByServer)
+                            _serverConfig = ServerConfig.SetConfig(dataStr);
                         break;
 
                     case "kick": // SERVER-SIDE : Kick the client that asked to be kicked.
